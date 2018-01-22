@@ -3,7 +3,11 @@ app.config(function($stateProvider, $urlRouterProvider){
 		.state('home', {
 			url: '/home',
 			templateUrl: 'home.html'
+		}).state('station', {
+			url: '/station/:id',
+			templateUrl: 'station.html'
 		});
 
+		
 	$urlRouterProvider.otherwise('/home');
 });

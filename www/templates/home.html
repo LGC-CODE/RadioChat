@@ -1,31 +1,25 @@
-<ion-header-bar class="bar-light">
-	<div class="buttons">
-		<button ng-click="toggleLeft()" class="button button-icon icon ion-navicon"></button>
-	</div>
-	<h1 class="title">{{ page.title }}</h1>
-</ion-header-bar>
-<ion-content class="has-header">
-	<div ng-repeat="station in stations" class="list card">
-		<ion-item class="item-avatar">
-			<img src="{{ station.avatar }}">
-		    <h2>{{ station.stationName }}</h2>
-		    <p>{{ station.subStationName }}</p>
-		</ion-item>
-		<ion-item class="item-body">
-			<img class="full-image" src="{{ station.coverImage }}">
-			<p>{{ station.stationDescription }}</p>
-		</ion-item>
-		<audio-player station-url="station.stationUrl"></audio-player>
-		<ion-item class="assertive item-icon-right" href="{{ station.facebookUrl }}">
-			<i class="icon ion-social-facebook"></i>
-    		Facebook
-		</ion-item>
-		<ion-item class="assertive item-icon-right" href="{{ station.chatUrl }}">
-			<i class="icon ion-ios-chatboxes"></i>
-    		Mandar Saludos
-		</ion-item>
-	</div>
-</ion-content>
+<div ng-repeat="station in stations" class="list card">
+	<ion-item class="item-avatar">
+		<img src="{{ station.avatar }}">
+	    <h2>{{ station.stationName }}</h2>
+	    <p>{{ station.subStationName }}</p>
+	</ion-item>
+	<ion-item class="item-body">
+		<img class="full-image" src="{{ station.coverImage }}">
+		<p>{{ station.stationDescription }}</p>
+	</ion-item>
+
+	<audio-player station-id="$index"></audio-player>
+
+	<ion-item class="assertive item-icon-right" href="{{ station.facebookUrl }}">
+		<i class="icon ion-social-facebook"></i>
+		Facebook
+	</ion-item>
+	<ion-item class="assertive item-icon-right" href="/#/station/{{ $index }}">
+		<i class="icon ion-ios-chatboxes"></i>
+		Mandar Saludos
+	</ion-item>
+</div>
 
 
 

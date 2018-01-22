@@ -1,5 +1,8 @@
 <ion-item class="assertive item-icon-right">
-	<i ng-hide="isPlaying" ng-click="play(); isPlaying=!isPlaying" class="icon ion-play"></i>
-	<i ng-show="isPlaying" ng-click="stop(); isPlaying=!isPlaying" class="icon ion-pause"></i>
-	Escuchar En Vivo
+	<div ng-hide="isPlaying">Escuchar En Vivo</div>
+	<i ng-hide="isPlaying" ng-click="play()" class="icon ion-play"></i>
+	<div ng-show="isPlaying">En Vivo</div>
+	<i ng-show="isPlaying" ng-click="stop()" class="icon ion-pause"></i>
+	<ion-spinner ng-show="isPlaying" icon="lines" class="spinner-assertive"></ion-spinner>
 </ion-item>
+<div ng-transclude></div>
