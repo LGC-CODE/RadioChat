@@ -52859,6 +52859,7 @@ function $ViewDirectiveFill (  $compile,   $controller,   $state,   $interpolate
 function getUiViewName(scope, attrs, element, $interpolate) {
   var name = $interpolate(attrs.uiView || attrs.name || '')(scope);
   var inherited = element.inheritedData('$uiView');
+  console.log(name, 'name of view!');
   return name.indexOf('@') >= 0 ?  name :  (name + '@' + (inherited ? inherited.state.name : ''));
 }
 

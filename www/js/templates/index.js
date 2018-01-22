@@ -1,5 +1,7 @@
 app.factory('$stations', ['$http', function($http){
-	var stations = {};
+	var stations = {
+		nowPlayingId: '0'
+	};
 
 	stations.hosts = [
 		{
@@ -87,6 +89,7 @@ app.factory('$stations', ['$http', function($http){
 	stations.saveAudio = function(id, audioPlayer){
 		stations.hosts[id].audioPlayer = audioPlayer;
 		stations.hosts[id].audioPlayer.preload = 'metadata';
+		stations.hosts[id].audioPlayer.id = id;
 		return stations.hosts[id].audioPlayer;
 
 	};
@@ -95,13 +98,15 @@ app.factory('$stations', ['$http', function($http){
 		return stations.hosts[id].audioPlayer;
 	};
 
+	stations.setNowPlaying = function(id){
+		stations.nowPlayingId = id;
+	};
+
 	return stations;
 }]);
 
-app.factory('$page', ['$http', function($http){
-	var page = {};
-
-	page.title = 'Home';
+app.factory('$page', [function(){
+	var page = { title: '' };
 
 	page.setTitle = function(title){
 		page.title = title;
@@ -121,9 +126,44 @@ app.directive('navTitle', function(){
 		restrict: 'E',
 		scope: {},
 		controller: ['$scope', '$page', function($scope, $page){
-			$scope.page = $page.getTitle();
+			$scope.page = $page.getTitle;
 		}],
-		templateUrl: '../../templates/navBar.html'
+		templateUrl: '../../templates/navTitle.html'
+	};
+});
+
+app.directive('navAudioPlayer', function(){
+	return {
+		restrict: 'E',
+		scope: {},
+		controller: ['$scope', '$stations', function($scope, $stations){
+			$scope.$watch(function(){ return $stations.nowPlayingId; }, function(newVal, oldVal){
+				console.log(newVal, oldVal, 'new value scanned');
+						var stationId = $stations.nowPlayingId;
+						var station = $stations.getStation(stationId);
+						var audio = $stations.loadAudio(stationId);
+
+
+						$scope.$watch(function(){ return station.isPlaying; }, function(newVal, oldVal){
+							$scope.isPlaying = $stations.getAudioStatus(stationId);
+						});
+
+						$scope.play = function(){
+							audio.play();
+							$scope.isPlaying = $stations.audioStatus(stationId, true);
+						};
+
+						$scope.stop = function(){
+							audio.pause();
+							audio.load();
+							audio = $stations.saveAudio(stationId, new Audio(station.stationUrl));
+							$scope.isPlaying = $stations.audioStatus(stationId, false);
+						};
+				
+			});
+
+		}],
+		templateUrl: '../../templates/navAudioPlayer.html'
 	};
 });
 
@@ -131,7 +171,9 @@ app.directive('homeTemplate', function(){
 	return {
 		restrict: 'E',
 		scope: {},
-		controller: ['$scope', '$ionicSideMenuDelegate', '$stations', function($scope, $ionicSideMenuDelegate, $stations){
+		controller: ['$scope', '$ionicSideMenuDelegate', '$stations', '$page', function($scope, $ionicSideMenuDelegate, $stations, $page){
+
+			$page.setTitle('Radio Chat');
 
 			$scope.toggleLeft = function() {
 			    $ionicSideMenuDelegate.toggleLeft();
@@ -149,7 +191,7 @@ app.directive('audioPlayer', function(){
 		restrict: 'E',
 		transclude: true,
 		scope: {stationId: '='},
-		controller: ['$scope', '$stations', '$stateParams',function($scope, $stations, $stateParams){
+		controller: ['$scope', '$stations', '$stateParams', '$page', function($scope, $stations, $stateParams, $page){
 			var stationId = $stateParams.id || $scope.stationId;
 			console.log($stations.getStation($scope.stationId), $scope.stationId);
 			var station = $stations.getStation(stationId);
@@ -160,13 +202,20 @@ app.directive('audioPlayer', function(){
 
 			this.station = station;
 			this.audio = audio;
+			this.$page = $page;
 
+				$scope.$watch(function(){ return station.isPlaying; }, function(newVal, oldVal){
+					console.log(newVal, oldVal, 'is playing');
+
+					$scope.isPlaying = $stations.getAudioStatus(stationId);
+
+				});
 				$scope.isPlaying = $stations.getAudioStatus(stationId);
 
 				$scope.play = function(){
 					audio.play();
 					$scope.isPlaying = $stations.audioStatus(stationId, true);
-					console.log($scope.isPlaying);
+					$stations.setNowPlaying(stationId);
 				};
 
 				$scope.stop = function(){
@@ -192,9 +241,7 @@ app.directive('stationTemplate', function(){
 		transclude: true,
 		scope: {},
 		link: function(scope, elem, attrs, audioCtrl){
-			// scope.station = '';
-			// scope.isPlaying = !audioCtrl.audio.paused;
-			scope.page = { title: 'Radio Chat' };
+			audioCtrl.$page.setTitle(audioCtrl.station.stationName);
 
 			scope.toggleLeft = function() {
 			    $ionicSideMenuDelegate.toggleLeft();

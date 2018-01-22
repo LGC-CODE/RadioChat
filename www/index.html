@@ -53,8 +53,14 @@
 
       <ion-side-menu-content>
         <ion-nav-bar class="bar-light"> 
+          <ion-nav-title>
+            <nav-title></nav-title>
+          </ion-nav-title>
           <ion-nav-buttons side="left">
-           <button menu-toggle="left" class="button button-icon icon ion-navicon"></button>
+            <button menu-toggle="left" class="button button-icon icon ion-navicon"></button>
+          </ion-nav-buttons>
+          <ion-nav-buttons side="right">
+            <nav-audio-player></nav-audio-player>
           </ion-nav-buttons>
           <ion-nav-back-button>
           </ion-nav-back-button>
@@ -67,7 +73,7 @@
     </ion-side-menus>
 
     <script id="home.html" type="text/ng-template">
-      <ion-view cache-view="false" view-title="Radio Chat">
+      <ion-view cache-view="false">
         <ion-content>
           <home-template></home-template>
         <ion-content>
