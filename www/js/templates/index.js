@@ -80,7 +80,7 @@ app.factory('$stations', ['$http', function($http){
 
 	stations.getAudioStatus = function(id){
 		return stations.hosts[id].isPlaying;
-	}
+	};
 
 	stations.getStation = function(id){
 		return stations.hosts[id];
@@ -95,10 +95,11 @@ app.factory('$stations', ['$http', function($http){
 	};
 
 	stations.loadAudio = function(id){
-		return stations.hosts[id].audioPlayer;
+		return stations.hosts[id] ? stations.hosts[id].audioPlayer : false;
 	};
 
 	stations.setNowPlaying = function(id){
+		console.log('now playing id:', id);
 		stations.nowPlayingId = id;
 	};
 
@@ -106,14 +107,22 @@ app.factory('$stations', ['$http', function($http){
 }]);
 
 app.factory('$page', [function(){
-	var page = { title: '' };
+	var page = { title: '', isPlaying: ''};
 
 	page.setTitle = function(title){
 		page.title = title;
 	};
 
+	page.setAudioStatus = function(status){
+		page.isPlaying = status;
+	}
+
 	page.getTitle = function(){
 		return page.title;
+	};
+
+	page.getAudioStatus = function(){
+		return page.isPlaying;
 	};
 
 	return page;
@@ -136,28 +145,20 @@ app.directive('navAudioPlayer', function(){
 	return {
 		restrict: 'E',
 		scope: {},
-		controller: ['$scope', '$stations', function($scope, $stations){
-			$scope.$watch(function(){ return $stations.nowPlayingId; }, function(newVal, oldVal){
-				console.log(newVal, oldVal, 'new value scanned');
-						var stationId = $stations.nowPlayingId;
-						var station = $stations.getStation(stationId);
-						var audio = $stations.loadAudio(stationId);
+		controller: ['$scope', '$stations', '$page', function($scope, $stations, $page){
+			$scope.$watchCollection(function(){ return {stationId: $stations.nowPlayingId, isPlaying: $stations.getStation($stations.nowPlayingId).isPlaying }; }, function(newStation, oldStation){
+						var audio = $stations.loadAudio($stations.nowPlayingId);
+						var station = $stations.getStation(newStation.stationId);
 
-
-						$scope.$watch(function(){ return station.isPlaying; }, function(newVal, oldVal){
-							$scope.isPlaying = $stations.getAudioStatus(stationId);
-						});
-
-						$scope.play = function(){
-							audio.play();
-							$scope.isPlaying = $stations.audioStatus(stationId, true);
-						};
+						$scope.isPlaying = newStation.isPlaying;
 
 						$scope.stop = function(){
 							audio.pause();
 							audio.load();
-							audio = $stations.saveAudio(stationId, new Audio(station.stationUrl));
-							$scope.isPlaying = $stations.audioStatus(stationId, false);
+							audio = $stations.saveAudio(newStation.stationId, new Audio(station.stationUrl));
+							$scope.isPlaying = $stations.audioStatus(newStation.stationId, false);
+							$stations.nowPlayingId = oldStation.stationId;
+							$page.setTitle('Radio Chat');
 						};
 				
 			});
@@ -189,11 +190,9 @@ app.directive('homeTemplate', function(){
 app.directive('audioPlayer', function(){
 	return {
 		restrict: 'E',
-		transclude: true,
 		scope: {stationId: '='},
 		controller: ['$scope', '$stations', '$stateParams', '$page', function($scope, $stations, $stateParams, $page){
 			var stationId = $stateParams.id || $scope.stationId;
-			console.log($stations.getStation($scope.stationId), $scope.stationId);
 			var station = $stations.getStation(stationId);
 
 			var audio = $stations.loadAudio(stationId);
@@ -205,24 +204,34 @@ app.directive('audioPlayer', function(){
 			this.$page = $page;
 
 				$scope.$watch(function(){ return station.isPlaying; }, function(newVal, oldVal){
-					console.log(newVal, oldVal, 'is playing');
-
 					$scope.isPlaying = $stations.getAudioStatus(stationId);
-
 				});
+
+				$scope.$watch(function(){ return $stations.nowPlayingId; }, function(newVal, oldVal){
+					if(oldVal === stationId && oldVal !== newVal){
+						audio.pause();
+						$scope.isPlaying = $stations.audioStatus(stationId, false);
+					} 
+				});
+
 				$scope.isPlaying = $stations.getAudioStatus(stationId);
 
 				$scope.play = function(){
 					audio.play();
 					$scope.isPlaying = $stations.audioStatus(stationId, true);
 					$stations.setNowPlaying(stationId);
+					//$page.setTitle(station.stationName);
+					//$page.setAudioStatus($scope.isPlaying);
 				};
 
 				$scope.stop = function(){
 					audio.pause();
-					audio = $stations.saveAudio(stationId, new Audio(station.stationUrl));
-					audio.load();
+					//audio = $stations.saveAudio(stationId, new Audio(station.stationUrl));
+					//audio.load();
 					$scope.isPlaying = $stations.audioStatus(stationId, false);
+					$stations.setNowPlaying(stationId);
+					//$page.setTitle(station.stationName);
+					//$page.setAudioStatus($scope.isPlaying);
 				};
 
 				$scope.toggleLeft = function() {
@@ -236,17 +245,11 @@ app.directive('audioPlayer', function(){
 
 app.directive('stationTemplate', function(){
 	return {
-		require:'^audioPlayer',
-		restrict: 'AE',
-		transclude: true,
+		restrict: 'E',
 		scope: {},
-		link: function(scope, elem, attrs, audioCtrl){
-			audioCtrl.$page.setTitle(audioCtrl.station.stationName);
+		controller: ['$scope', function($scope){
 
-			scope.toggleLeft = function() {
-			    $ionicSideMenuDelegate.toggleLeft();
-			};
-		},
+		}],
 		templateUrl: '../../templates/station.html'
 	};
 });
