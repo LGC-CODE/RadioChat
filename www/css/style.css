@@ -9,3 +9,7 @@
 	height: 100%;
 	display: flex;
 }
+
+.spinner-nav-bar.spinner.spinner-lines {
+	left: 12pc;
+}

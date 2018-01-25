@@ -134,8 +134,11 @@ app.directive('navTitle', function(){
 	return {
 		restrict: 'E',
 		scope: {},
-		controller: ['$scope', '$page', function($scope, $page){
+		controller: ['$scope', '$page', '$stations', function($scope, $page, $stations){
 			$scope.page = $page.getTitle;
+			$scope.$watch(function(){ return $page.isPlaying }, function(newStatus){
+				$scope.isPlaying = newStatus;
+			});
 		}],
 		templateUrl: '../../templates/navTitle.html'
 	};
@@ -146,11 +149,12 @@ app.directive('navAudioPlayer', function(){
 		restrict: 'E',
 		scope: {},
 		controller: ['$scope', '$stations', '$page', function($scope, $stations, $page){
-			$scope.$watchCollection(function(){ return {stationId: $stations.nowPlayingId, isPlaying: $stations.getStation($stations.nowPlayingId).isPlaying }; }, function(newStation, oldStation){
+			$scope.$watchCollection(function(){ return { stationId: $stations.nowPlayingId, isPlaying: $stations.getStation($stations.nowPlayingId).isPlaying }; }, function(newStation, oldStation){
 						var audio = $stations.loadAudio($stations.nowPlayingId);
 						var station = $stations.getStation(newStation.stationId);
 
 						$scope.isPlaying = newStation.isPlaying;
+						$page.setAudioStatus(newStation.isPlaying);
 
 						$scope.stop = function(){
 							audio.pause();
@@ -220,8 +224,8 @@ app.directive('audioPlayer', function(){
 					audio.play();
 					$scope.isPlaying = $stations.audioStatus(stationId, true);
 					$stations.setNowPlaying(stationId);
-					//$page.setTitle(station.stationName);
-					//$page.setAudioStatus($scope.isPlaying);
+					$page.setTitle(station.stationName);
+					$page.setAudioStatus($scope.isPlaying);
 				};
 
 				$scope.stop = function(){
@@ -230,8 +234,8 @@ app.directive('audioPlayer', function(){
 					//audio.load();
 					$scope.isPlaying = $stations.audioStatus(stationId, false);
 					$stations.setNowPlaying(stationId);
-					//$page.setTitle(station.stationName);
-					//$page.setAudioStatus($scope.isPlaying);
+					$page.setTitle('Radio Chat');
+					$page.setAudioStatus($scope.isPlaying);
 				};
 
 				$scope.toggleLeft = function() {
