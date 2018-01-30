@@ -1,0 +1,22 @@
+<ion-list>
+	<ion-item ng-show="isLoggedIn">
+		{{ user.displayName }}
+	</ion-item>
+	<ion-item ng-show="isLoggedIn" href="#/user" menu-close>
+		Ver Perfil
+	</ion-item>
+	<ion-item href="#/home" class="item-icon-right" menu-close>
+		Estaciones de Radio
+    	<i class="icon ion-music-note"></i>
+  	</a>
+	</ion-item>
+	<ion-item ng-hide="isLoggedIn" href="#/accounts" menu-close>
+		Crear Perfil
+	</ion-item>
+	<ion-item ng-hide="isLoggedIn" href="#/login" menu-close>
+		Acceder Perfil
+	</ion-item>
+	<ion-item ng-show="isLoggedIn" href="#" ng-click="signout()" menu-close>
+		Salir de Perfil
+	</ion-item>
+</ion-list>

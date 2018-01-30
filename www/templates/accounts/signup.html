@@ -1,0 +1,31 @@
+<div ng-if="provider === 'email'" class="list list-inset">
+	<ion-item class="item-body assertive" ng-show="error.message">{{ error.message }}</ion-item>
+	<label class="item item-input">
+		<input ng-model="user.email" type="text" placeholder="Email">
+	</label>
+	<label class="item item-input">
+		<input ng-model="user.password" type="password" placeholder="Clave">
+	</label>
+	<button ng-click="signup(user)" class="button button-block button-dark">
+		Someter
+	</button>
+</div>
+
+<div ng-if="provider === 'google'"  class="list list-inset">
+	<button ng-click="googleSignup()" class="button button-block button-dark">
+		Acceder Cuenta de Google
+	</button>
+</div>
+
+<div ng-if="provider === 'sonidero'"  class="list list-inset">
+	<ion-item class="item-body assertive" ng-show="error.message">{{ error.message }}</ion-item>
+	<label class="item item-input">
+		<input ng-model="user.email" type="text" placeholder="Email">
+	</label>
+	<label class="item item-input">
+		<input ng-model="user.password" type="password" placeholder="Clave">
+	</label>
+	<button ng-click="sonideroSignup(user)" class="button button-block button-balanced">
+		Someter
+	</button>
+</div>

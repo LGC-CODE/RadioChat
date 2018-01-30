@@ -106,8 +106,8 @@ app.factory('$stations', ['$http', function($http){
 	return stations;
 }]);
 
-app.factory('$page', [function(){
-	var page = { title: '', isPlaying: ''};
+app.factory('$page', function(){
+	var page = { title: 'Radio Chat', isPlaying: ''};
 
 	page.setTitle = function(title){
 		page.title = title;
@@ -115,7 +115,7 @@ app.factory('$page', [function(){
 
 	page.setAudioStatus = function(status){
 		page.isPlaying = status;
-	}
+	};
 
 	page.getTitle = function(){
 		return page.title;
@@ -126,8 +126,37 @@ app.factory('$page', [function(){
 	};
 
 	return page;
-}]);
+});
 
+app.directive('sidebarTemplate', function(){
+	return {
+		restrict: 'E',
+		scope: {},
+		controller: ['$scope', '$firebase', '$window', '$ionicHistory', function($scope, $firebase, $window, $ionicHistory){
+			$firebase.app.auth().onAuthStateChanged(function(user) {
+				if (user) {
+					$ionicHistory.nextViewOptions({
+						disableAnimate: false,
+						disableBack: true
+					});
+					$scope.user = $firebase.currentUser = user;
+					$scope.$apply();
+					$scope.isLoggedIn = true;
+				} else {
+					$scope.isLoggedIn = false;
+				}
+			});
+
+			console.log($firebase.app.auth().currentUser);
+
+			$scope.signout = function(){
+				$firebase.app.auth().signOut();
+			};
+
+		}],
+		templateUrl: '../../templates/sidebar.html'
+	};
+});
 
 
 app.directive('navTitle', function(){
@@ -136,7 +165,7 @@ app.directive('navTitle', function(){
 		scope: {},
 		controller: ['$scope', '$page', '$stations', function($scope, $page, $stations){
 			$scope.page = $page.getTitle;
-			$scope.$watch(function(){ return $page.isPlaying }, function(newStatus){
+			$scope.$watch(function(){ return $page.isPlaying; }, function(newStatus){
 				$scope.isPlaying = newStatus;
 			});
 		}],
@@ -160,9 +189,9 @@ app.directive('navAudioPlayer', function(){
 							audio.pause();
 							audio.load();
 							audio = $stations.saveAudio(newStation.stationId, new Audio(station.stationUrl));
-							$scope.isPlaying = $stations.audioStatus(newStation.stationId, false);
-							$stations.nowPlayingId = oldStation.stationId;
-							$page.setTitle('Radio Chat');
+								$scope.isPlaying = $stations.audioStatus(newStation.stationId, false);
+								$stations.nowPlayingId = oldStation.stationId;
+								$page.setTitle('Radio Chat');
 						};
 				
 			});
@@ -176,13 +205,7 @@ app.directive('homeTemplate', function(){
 	return {
 		restrict: 'E',
 		scope: {},
-		controller: ['$scope', '$ionicSideMenuDelegate', '$stations', '$page', function($scope, $ionicSideMenuDelegate, $stations, $page){
-
-			$page.setTitle('Radio Chat');
-
-			$scope.toggleLeft = function() {
-			    $ionicSideMenuDelegate.toggleLeft();
-		    };
+		controller: ['$scope', '$ionicHistory', '$stations', function($scope, $ionicHistory, $stations){
 
 		    $scope.stations = $stations.hosts;
 
@@ -251,8 +274,9 @@ app.directive('stationTemplate', function(){
 	return {
 		restrict: 'E',
 		scope: {},
-		controller: ['$scope', function($scope){
-
+		controller: ['$scope', '$stations', '$stateParams', function($scope, $stations, $stateParams){
+			var stationId = $stateParams.id;
+			$scope.station = $stations.getStation(stationId);
 		}],
 		templateUrl: '../../templates/station.html'
 	};

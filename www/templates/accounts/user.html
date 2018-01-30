@@ -1,0 +1,26 @@
+<div class="list">
+	<ion-item ng-click="user.emailVerified ? '' : resendVerification()" class="item-body">
+	    <h2>{{ user.email }}</h2>
+	    <p>
+	    	<span ng-class="{'balanced': user.emailVerified, 'assertive': !user.emailVerified}">
+	     		{{ user.emailVerified ? 'Email Ya Esta Verificado' : sentVerification ? 'Verificacion enviada otravez' : 'Necesita Verificar Email' }}
+	    	</span>
+	    </p>
+	</ion-item>
+	<div ng-hide="isEditMode" class="item item-body">
+	    <h2>{{ user.displayName ? user.displayName : 'Ingrese su Nombre' }}</h2>
+	    <p>Usuario</p>
+	</div>
+	<label ng-show="isEditMode"  class="item item-input item-stacked-label">
+		<span class="input-label">Ingresa tu Nombre</span>
+		<input ng-model="user.name" type="text" placeholder="Nombre">
+	</label>
+	<div class="item">
+		<button ng-show="isEditMode" ng-click="isEditMode=!isEditMode; updateUser(user.name);" class="button button-block button-balanced">
+			Actualizar Perfil
+		</button>
+		<button ng-hide="isEditMode" ng-click="isEditMode=!isEditMode" class="button button-block button-dark">
+			Editar Perfil
+		</button>
+	</div>
+</div>

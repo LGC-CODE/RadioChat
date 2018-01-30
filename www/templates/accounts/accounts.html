@@ -1,0 +1,6 @@
+<ion-list>
+	<ion-item ng-repeat="provider in providers" href="#/accounts/{{ provider.name.toLowerCase() }}" class="item-icon-right assertive">
+    	Acceder con {{ provider.name }}
+	    <i class="icon {{ provider.icon }}"></i>
+	</ion-item>
+</ion-list>

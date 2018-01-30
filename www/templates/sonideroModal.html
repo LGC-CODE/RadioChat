@@ -1,0 +1,32 @@
+<ion-modal-view>
+	<ion-header-bar class="bar bar-header bar-dark">
+		<h1 class="title">Crea tu Perfil Sonidero</h1>
+		<button class="button button-dark button-primary" ng-click="closeModal()">Cancel</button>
+	</ion-header-bar>
+	<ion-content>
+		<label class="item item-body">
+			<p>Nombre de Estacion Radio</p>
+			<input ng-model="user.stationName" type="text" placeholder="Nombre de Estacion Radio">
+		</label>
+		<label class="item item-body">
+			<p>Titulo Secundario</p>
+			<input ng-model="user.subStationName" type="text" placeholder="Titulo Secundario">
+		</label>
+		<upload-template file="user.coverImage"></upload-template>
+		<label class="item item-body">
+			<p>Descripcion de Radio</p>
+			<input ng-model="user.stationDescription" type="text" placeholder="Descripcion de Radio">
+		</label>
+		<label class="item item-body">
+			<p>URL de Estacion de Radio</p>
+			<input ng-model="user.stationUrl" type="text" placeholder="URL de Estacion de Radio">
+		</label>
+		<label class="item item-body">
+			<p>URL de tu Facebook</p>
+			<input ng-model="user.facebookUrl" type="text" placeholder="URL de tu Facebook">
+		</label>
+		<button ng-click="sonideroCreateProfile(user)" class="button button-block button-balanced">
+			Someter
+		</button>
+	</ion-content>
+</ion-modal-view>

@@ -1,0 +1,16 @@
+<ion-modal-view>
+	<ion-header-bar class="bar bar-header bar-dark">
+		<h1 class="title">Crea una Clave</h1>
+		<button class="button button-dark button-primary" ng-click="closeModal()">Cancel</button>
+	</ion-header-bar>
+	<ion-content>
+		<div class="list list-inset">
+			<label class="item item-input">
+				<input ng-model="user.password" type="password" placeholder="Clave">
+			</label>
+			<button ng-click="updateUser(user.password)" class="button button-block button-dark">
+				Someter
+			</button>
+		</div>
+	</ion-content>
+</ion-modal-view>
