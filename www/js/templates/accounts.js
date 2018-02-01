@@ -16,14 +16,8 @@ app.directive('accountsTemplate', function(){
 app.directive('uploadTemplate', function(){
 	return {
 		restrict: 'E',
-		scope: { file: '=' },
+		scope: {path: '=', imageUrl: '='},
 		link: function(scope, elem, attrs){
-			console.log(elem);
-			console.log(scope.file);
-			//elem.children[0].children.file.bind('change', function(event){
-			//	console.log(event, 'event');
-
-			//});
 
 			elem.bind('change', function(event){
 				console.log(event, 'elem changed');
@@ -35,22 +29,55 @@ app.directive('uploadTemplate', function(){
 					scope.file = {};
 				}
 			});
-			// el.bind('change', function(event){
-			// 	console.log(event, 'event');
-			// 	console.log(scope.file);
-			// 	var files = event.target.files;
-			// 	var file = files[0];
-			// 	if(file && typeof(file) !== undefined && file.size > 0){
-			// 		scope.file = file;
-			// 		scope.$parent.file = file;
-			// 		console.log(scope.$parent, 'parent');
-			// 		scope.$apply();
-			// 	} else {
-			// 		scope.file = {};
-			// 		scope.$parent.file = {};
-			// 	}
-			// });
 		},
+		controller: ['$scope', '$firebase', '$document', function($scope, $firebase, $document){
+			$scope.isFileUploaded = false;
+			$scope.upload = function(){
+				var uploadElement = $document[0].getElementById('upload').click();
+				console.log(uploadElement);
+			};
+
+			$scope.$watch('file', function(newFile, oldFile){
+				if(newFile && newFile.size > 0) {
+					var uid = $firebase.app.auth().currentUser.uid;
+					console.log(newFile, 'file detected');
+					$firebase.app.storage().ref()
+						.child('images/'+ uid + '/' + newFile.name)
+						.put(newFile).then(function(snapshot) {
+							console.log('Uploaded a blob or file!' , snapshot.metadata);
+							$scope.isFileUploaded = snapshot.metadata;
+							$scope.path = snapshot.metadata.fullPath;
+							$scope.imageUrl = snapshot.metadata.downloadURLs[0];
+							$scope.$apply();
+						}).catch(function(err){
+							console.log(new Error(err.message));
+						});
+				}
+			});
+
+			$scope.$watch('imageUrl', function(newFile, oldFile){
+				if(newFile) {
+					$scope.isFileUploaded = { downloadURLs: [$scope.imageUrl] };
+				} else {
+					$scope.isFileUploaded = false;
+				}
+			});
+			
+			$scope.removeFile = function(){
+				console.log($scope.isFileUploaded.fullPath);
+				$firebase.app.storage().ref().child($scope.path)
+					.delete()
+					.then(function(){
+						$scope.isFileUploaded = false;
+						$scope.file = {};
+						$scope.imageUrl = '';
+						$scope.$apply();
+					})
+					.catch(function(err){
+						console.log(new Error(err));
+					});
+			};
+		}],
 		templateUrl: '../../templates/uploadTemplate.html'
 	};
 });
@@ -60,29 +87,6 @@ app.directive('signupTemplate', function(){
 		restrict: 'E',
 		scope: {},
 		controller: ['$scope', '$firebase', '$stateParams', '$ionicModal', '$state', function($scope, $firebase, $stateParams, $ionicModal, $state){
-			var station = {
-			_id: 'fgi4bihjwkj34knwlkn34',
-			isPlaying: '',
-			avatar: 'http://animals.sandiegozoo.org/sites/default/files/2016-08/animals_hero_reindeer.jpg',
-			stationName: 'El Leon Sonidero',
-			subStationName: 'El mejor ruido del siglo!',
-			coverImage: 'http://animals.sandiegozoo.org/sites/default/files/2016-08/animals_hero_reindeer.jpg',
-			stationDescription: 'Las mejores cumbias sonideras, haz click para escuchar la estacion en vivo! No se olviden dejar sus commentarios!',
-			stationUrl: 'http://hyades.shoutca.st:8043/stream',
-			facebookUrl: 'http://www.facebook.com',
-			chatUrl: 'http://msgstar.herokuapp.com',
-			audioPlayer: '',
-			comments: [{
-				from: 'Luis',
-				message: 'muy buena estacion!'
-			},{
-				from: 'Jessie',
-				message: 'muy buena estacion!'
-			},{
-				from: 'Tori',
-				message: 'muy buena estacion!'
-			}]
-		};
 			
 			$scope.signup = function(user){
 				if(user){
@@ -131,35 +135,57 @@ app.directive('signupTemplate', function(){
 			$ionicModal.fromTemplateUrl('../templates/sonideroModal.html', {scope: $scope, animation: 'slide-in-up'} ).then(function(modal){
 				$scope.sonideroModal = modal;
 				$scope.user = {};
-				//console.log(modal);
 
-				//$scope.currentUser = $firebase.app.auth().currentUser;
+				$scope.hideModal = function(){
+					$scope.sonideroModal.hide();
+				};
 
 				$scope.sonideroCreateProfile = function(user){
+					var userFolder = user.stationName.split(' ').join('').toLowerCase();
+					var chatRoom = [{
+						username: 'luis',
+						message: 'This is the best app in the world'
+					},{
+						username: 'Johnny',
+						message: 'This is the best app in the world'
+					}];
+
+					user._id = $firebase.app.auth().currentUser.uid;
+					user.isPlaying = '';
+					user.avatar = $scope.user.coverImage;
+					user.audioPlayer = '';
+					user.comments = [];
+
+					//create user profile by uid
+					$firebase.app.database().ref('users/' + user._id).set(user).then(function(){
+						console.log('user processing done.');
+					});
+
+					//create user chat databse by uid
+					$firebase.app.database().ref('chats/' + user._id + '/messages').set(chatRoom).then(function(){
+						console.log('chat processing done.');
+					});
+
+					$scope.sonideroModal.hide();
+
 					console.log(user);
 					console.log($scope.user.coverImage, 'image loaded');
 					
-					$firebase.app.storage().ref()
-						.child('images/image.jpg')
-						.put($scope.user.coverImage).then(function(snapshot) {
-							console.log('Uploaded a blob or file!' , snapshot);
-						}).catch(function(err){
-							console.log(new Error(err.message));
-						});
 
 				};
 			});
 
 			$scope.sonideroSignup = function(user){
+				console.log(user);
 				if(user){
-					// $firebase.createUser(user).then(function(){
-					// 	$firebase.app.auth().currentUser.sendEmailVerification({url: 'http://localhost:8100/#/home'});
-					// 	$scope.sonideroModal.show();
-					// }).catch(function(err){
-					// 	console.log(err.message);
-					// 	$scope.error = err;
-					// 	$scope.$apply();
-					// });
+					$firebase.createUser(user).then(function(){
+						$firebase.app.auth().currentUser.sendEmailVerification({url: 'http://localhost:8100/#/home'});
+						$scope.sonideroModal.show();
+					}).catch(function(err){
+						console.log(err.message);
+						$scope.error = err;
+						$scope.$apply();
+					});
 					console.log(user);
 					$scope.sonideroModal.show();
 				}
@@ -189,7 +215,7 @@ app.directive('loginTemplate', function(){
 								$firebase.currentUser = res; 
 								$state.go('home');
 							}).catch(function(err){ throw new Error(err); }); 
-			  	});	;
+			  	});
 			};
 		}],
 		templateUrl: '../../templates/accounts/login.html'
@@ -201,18 +227,49 @@ app.directive('userTemplate', function(){
 		restrict: 'E',
 		scope: {},
 		controller: ['$scope', '$firebase', function($scope, $firebase){
-			$scope.user = $firebase.currentUser;
+			$scope.authUser = $firebase.currentUser;
+			$scope.isFileUploaded = false;
+			console.log($scope.currentUser, 'current user');
+			$firebase.app.database().ref('users/' + $scope.authUser.uid).once('value').then(function(data){
+				console.log(data.val(), 'value from database');
+				$scope.user = data.val();
+				$scope.isSonidero = data.val() ? true : '';
+				$scope.isFileUploaded = true;
+				console.log($scope.isSonidero, 'sonidero ?');
+				$scope.$apply();
+			});
+
 			$scope.sentVerification = false;
 			$scope.updateUser = function(name){
-				$firebase.updateUser(name).then(function(res){
-					$scope.currentUser = $firebase.app.auth().currentUser;
-					$scope.$apply();
-				});
+				if(name){
+					$firebase.updateUser(name).then(function(res){
+						$scope.currentUser = $firebase.app.auth().currentUser;
+						$scope.$apply();
+					});
+				} else {
+					console.log('no name');
+				}
 			};
 
 			$scope.resendVerification = function(){
 				$firebase.app.auth().currentUser.sendEmailVerification({url: 'http://localhost:8100/#/home'});
 				$scope.sentVerification = true;
+			};
+
+			$scope.sonideroUpdateProfile = function(user, authUser){
+				if(authUser.name){
+					$firebase.updateUser(authUser.name).then(function(res){
+						$scope.currentUser = $firebase.app.auth().currentUser;
+						$scope.$apply();
+					});
+				}
+
+				$firebase.app.database().ref('users/' + $scope.authUser.uid).update(user).then(function(data){
+					console.log(data, 'update response');
+				}).catch(function(err){
+					console.log(new Error(err));
+				});
+				console.log(user, 'profile sonidero updated');
 			};
 		}],
 		templateUrl: '../../templates/accounts/user.html'

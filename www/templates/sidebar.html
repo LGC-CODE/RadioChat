@@ -1,6 +1,6 @@
 <ion-list>
 	<ion-item ng-show="isLoggedIn">
-		{{ user.displayName }}
+		{{ user.displayName || 'Crea un Nombre de Usuario'}}
 	</ion-item>
 	<ion-item ng-show="isLoggedIn" href="#/user" menu-close>
 		Ver Perfil

@@ -20,12 +20,12 @@
 <div ng-if="provider === 'sonidero'"  class="list list-inset">
 	<ion-item class="item-body assertive" ng-show="error.message">{{ error.message }}</ion-item>
 	<label class="item item-input">
-		<input ng-model="user.email" type="text" placeholder="Email">
+		<input ng-model="currentUser.email" type="text" placeholder="Email">
 	</label>
 	<label class="item item-input">
-		<input ng-model="user.password" type="password" placeholder="Clave">
+		<input ng-model="currentUser.password" type="password" placeholder="Clave">
 	</label>
-	<button ng-click="sonideroSignup(user)" class="button button-block button-balanced">
+	<button ng-click="sonideroSignup(currentUser)" class="button button-block button-balanced">
 		Someter
 	</button>
 </div>

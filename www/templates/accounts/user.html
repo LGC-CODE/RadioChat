@@ -1,24 +1,103 @@
-<div class="list">
-	<ion-item ng-click="user.emailVerified ? '' : resendVerification()" class="item-body">
-	    <h2>{{ user.email }}</h2>
+<div class="list card">
+	<ion-item ng-click="authUser.emailVerified ? '' : resendVerification()" class="item-body">
+	    <h2>{{ authUser.email }}</h2>
 	    <p>
-	    	<span ng-class="{'balanced': user.emailVerified, 'assertive': !user.emailVerified}">
-	     		{{ user.emailVerified ? 'Email Ya Esta Verificado' : sentVerification ? 'Verificacion enviada otravez' : 'Necesita Verificar Email' }}
+	    	<span ng-class="{'balanced': authUser.emailVerified, 'assertive': !authUser.emailVerified}">
+	     		{{ authUser.emailVerified ? 'Email Ya Esta Verificado' : sentVerification ? 'Verificacion enviada otravez' : 'Necesita Verificar Email' }}
 	    	</span>
 	    </p>
 	</ion-item>
 	<div ng-hide="isEditMode" class="item item-body">
-	    <h2>{{ user.displayName ? user.displayName : 'Ingrese su Nombre' }}</h2>
+	    <h2>{{ authUser.displayName ? authUser.displayName : 'Ingrese su Nombre' }}</h2>
 	    <p>Usuario</p>
 	</div>
 	<label ng-show="isEditMode"  class="item item-input item-stacked-label">
 		<span class="input-label">Ingresa tu Nombre</span>
-		<input ng-model="user.name" type="text" placeholder="Nombre">
+		<input ng-model="authUser.name" type="text" placeholder="Nombre">
 	</label>
-	<div class="item">
-		<button ng-show="isEditMode" ng-click="isEditMode=!isEditMode; updateUser(user.name);" class="button button-block button-balanced">
+	<div ng-hide="isSonidero" class="item">
+		<button ng-show="isEditMode" ng-click="isEditMode=!isEditMode; updateUser(authUser.name);" class="button button-block button-balanced">
 			Actualizar Perfil
 		</button>
+		<button ng-hide="isEditMode" ng-click="isEditMode=!isEditMode" class="button button-block button-dark">
+			Editar Perfil
+		</button>
+	</div>
+</div>
+<div ng-show="isSonidero && isEditMode" class="list card">
+	<div class="item item-body">
+		<p>Nombre de Estacion Radio</p>
+		<label class="item item-input">
+			<textarea ng-model="user.stationName" type="text" placeholder="Nombre de Estacion Radio"></textarea>
+		</label>
+	</div>
+	<div class="item item-body">
+		<p>Titulo Secundario</p>
+		<label class="item item-input">
+			<textarea ng-model="user.subStationName" type="text" placeholder="Titulo Secundario"></textarea>
+		</label>
+	</div>
+	<upload-template class="item item-body" path="user.imageDbPath" image-url="user.coverImage"></upload-template>
+	<div class="item item-body">
+		<p>Descripcion de Radio</p>
+		<label class="item item-input">
+			<textarea ng-model="user.stationDescription" type="text" placeholder="Descripcion de Radio"></textarea>
+		</label>
+	</div>
+	<div class="item item-body">
+		<p>URL de Estacion de Radio</p>
+		<label class="item item-input">
+			<textarea ng-model="user.stationUrl" type="text" placeholder="URL de Estacion de Radio"></textarea>
+		</label>
+	</div>
+	<div class="item item-body">
+		<p>URL de tu Facebook</p>
+		<label class="item item-input">
+			<textarea ng-model="user.facebookUrl" type="text" placeholder="URL de tu Facebook"></textarea>
+		</label>
+	</div>
+	<div class="item">
+		<button ng-show="isEditMode" ng-click="isEditMode=!isEditMode; sonideroUpdateProfile(user, authUser);" class="button button-block button-balanced">
+			Actualizar Perfil
+		</button>
+	</div>
+</div>
+
+ <!-- if user is a dj and not in edit mode .. show this -->
+<div ng-show="isSonidero && !isEditMode" class="list card">
+	<div class="item item-body">
+	    <h2>{{ user.stationName }}</h2>
+	    <p>Nombre de Estacion</p>
+	</div>
+	<div class="item item-body">
+	    <h2>{{ user.subStationName }}</h2>
+	    <p>Titulo Secundario</p>
+	</div>
+	<div class="item item-body">
+	    <h2>{{ user.stationDescription }}</h2>
+	    <p>Descripcion de Radio</p>
+	</div>
+	<div class="item item-body">
+	    <h2>{{ user.subStationName }}</h2>
+	    <p>Titulo Secundario</p>
+	</div>
+	<div ng-show="isFileUploaded" class="item item-body">
+		<img class="full-image" src="{{ user.coverImage }}">
+		<p>Imagen de Portada</p>
+	</div>
+	<div ng-hide="isFileUploaded" class="item item-body">
+		<p>Necesita Foto de Portada</p>
+		<button ng-click="isEditMode=!isEditMode" class="button button-assertive button-block">Subir Portada</button>
+	</div>
+	<div class="item item-body">
+	    <h2>{{ user.stationUrl }}</h2>
+	    <p>URL de Estacion de Radio</p>
+	</div>
+	<div class="item item-body">
+	    <h2>{{ user.facebookUrl }}</h2>
+	    <p>URL de tu Facebook</p>
+	</div>
+	<div class="item">
 		<button ng-hide="isEditMode" ng-click="isEditMode=!isEditMode" class="button button-block button-dark">
 			Editar Perfil
 		</button>

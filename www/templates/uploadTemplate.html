@@ -1,4 +1,12 @@
-<label class="item item-body">
+<div ng-hide="isFileUploaded" class="item item-body">
 	<p>Imagen de Portada</p>
-	<input type="file" name="file">
-</label>
+	<div ng-click="upload()" class="button button-block button-dark">
+		Subir Portada
+	</div>
+</div>
+<input id="upload" class="fileUpload" type="file" name="file">
+<div ng-show="isFileUploaded" class="item item-body">
+	<img class="full-image" src="{{ isFileUploaded.downloadURLs[0] }}">
+	<p>Imagen de Portada</p>
+	<button ng-click="removeFile()" class="button button-assertive button-block">Remover</button>
+</div>

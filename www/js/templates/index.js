@@ -142,6 +142,7 @@ app.directive('sidebarTemplate', function(){
 					$scope.user = $firebase.currentUser = user;
 					$scope.$apply();
 					$scope.isLoggedIn = true;
+					$window.location.href = '#/home';
 				} else {
 					$scope.isLoggedIn = false;
 				}

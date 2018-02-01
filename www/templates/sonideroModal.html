@@ -1,7 +1,7 @@
 <ion-modal-view>
 	<ion-header-bar class="bar bar-header bar-dark">
 		<h1 class="title">Crea tu Perfil Sonidero</h1>
-		<button class="button button-dark button-primary" ng-click="closeModal()">Cancel</button>
+		<button class="button button-dark button-primary" ng-click="hideModal()">Cancel</button>
 	</ion-header-bar>
 	<ion-content>
 		<label class="item item-body">
@@ -12,7 +12,7 @@
 			<p>Titulo Secundario</p>
 			<input ng-model="user.subStationName" type="text" placeholder="Titulo Secundario">
 		</label>
-		<upload-template file="user.coverImage"></upload-template>
+		<upload-template path="user.imageDbPath" image-url="user.coverImage"></upload-template>
 		<label class="item item-body">
 			<p>Descripcion de Radio</p>
 			<input ng-model="user.stationDescription" type="text" placeholder="Descripcion de Radio">

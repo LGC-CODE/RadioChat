@@ -13,3 +13,7 @@
 .spinner-nav-bar.spinner.spinner-lines {
 	left: -1pc;
 }
+
+.fileUpload {
+	display: none;
+}
