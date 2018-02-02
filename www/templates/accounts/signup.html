@@ -17,15 +17,26 @@
 	</button>
 </div>
 
-<div ng-if="provider === 'sonidero'"  class="list list-inset">
+<div ng-if="provider === 'sonidero'"  class="list card">
 	<ion-item class="item-body assertive" ng-show="error.message">{{ error.message }}</ion-item>
-	<label class="item item-input">
-		<input ng-model="currentUser.email" type="text" placeholder="Email">
-	</label>
-	<label class="item item-input">
-		<input ng-model="currentUser.password" type="password" placeholder="Clave">
-	</label>
-	<button ng-click="sonideroSignup(currentUser)" class="button button-block button-balanced">
-		Someter
-	</button>
+	<div class="item item-body">
+		<label class="item-input">
+			<input ng-model="currentUser.email" type="text" placeholder="Email">
+		</label>
+	</div>
+	<div class="item item-body">
+		<label class="item-input">
+			<input ng-model="currentUser.password" type="password" placeholder="Clave">
+		</label>
+	</div>
+	<div class="item item-body">
+		<label class="item-input">
+			<input ng-model="currentUser.stationName" type="text" placeholder="Nombre de Sonidero o DJ">
+		</label>
+	</div>
+	<div class="item item-body">
+		<button ng-click="sonideroSignup(currentUser)" class="button button-block button-balanced">
+			Someter
+		</button>
+	</div>
 </div>

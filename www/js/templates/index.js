@@ -134,21 +134,21 @@ app.directive('sidebarTemplate', function(){
 		scope: {},
 		controller: ['$scope', '$firebase', '$window', '$ionicHistory', function($scope, $firebase, $window, $ionicHistory){
 			$firebase.app.auth().onAuthStateChanged(function(user) {
-				if (user) {
+
+				$scope.user = $firebase.currentUser = $firebase.app.auth().currentUser;
+				$scope.$apply();
+				console.log($firebase.app.auth().currentUser);
+				
+				if ($scope.user) {
 					$ionicHistory.nextViewOptions({
 						disableAnimate: false,
 						disableBack: true
 					});
-					$scope.user = $firebase.currentUser = user;
-					$scope.$apply();
 					$scope.isLoggedIn = true;
-					$window.location.href = '#/home';
 				} else {
 					$scope.isLoggedIn = false;
 				}
 			});
-
-			console.log($firebase.app.auth().currentUser);
 
 			$scope.signout = function(){
 				$firebase.app.auth().signOut();

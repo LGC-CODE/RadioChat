@@ -1,5 +1,6 @@
 /* Empty. Add your own CSS if you like */
-.spinner {
+
+.spinner-nav-bar.spinner.spinner-lines {
 	stroke: #444;
 	fill: #444;
 	position: absolute;
@@ -8,9 +9,6 @@
 	top: 0;
 	height: 100%;
 	display: flex;
-}
-
-.spinner-nav-bar.spinner.spinner-lines {
 	left: -1pc;
 }
 

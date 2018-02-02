@@ -30,7 +30,7 @@ app.directive('uploadTemplate', function(){
 				}
 			});
 		},
-		controller: ['$scope', '$firebase', '$document', function($scope, $firebase, $document){
+		controller: ['$scope', '$firebase', '$document', '$ionicLoading',function($scope, $firebase, $document, $ionicLoading){
 			$scope.isFileUploaded = false;
 			$scope.upload = function(){
 				var uploadElement = $document[0].getElementById('upload').click();
@@ -38,7 +38,13 @@ app.directive('uploadTemplate', function(){
 			};
 
 			$scope.$watch('file', function(newFile, oldFile){
+				console.log('new file detected', newFile, oldFile);
 				if(newFile && newFile.size > 0) {
+
+					$ionicLoading.show({
+						template: '<ion-spinner class="loading-spinner spinner-light" icon="ripple"></ion-spinner>',
+					});
+
 					var uid = $firebase.app.auth().currentUser.uid;
 					console.log(newFile, 'file detected');
 					$firebase.app.storage().ref()
@@ -48,6 +54,7 @@ app.directive('uploadTemplate', function(){
 							$scope.isFileUploaded = snapshot.metadata;
 							$scope.path = snapshot.metadata.fullPath;
 							$scope.imageUrl = snapshot.metadata.downloadURLs[0];
+							$ionicLoading.hide();
 							$scope.$apply();
 						}).catch(function(err){
 							console.log(new Error(err.message));
@@ -131,63 +138,48 @@ app.directive('signupTemplate', function(){
 				});
 			};
 
+			$scope.sonideroCreateProfile = function(stationName){
+					var user = {};
+					var userFolder = stationName.split(' ').join('').toLowerCase();
+					var chatRoom = [];
 
-			$ionicModal.fromTemplateUrl('../templates/sonideroModal.html', {scope: $scope, animation: 'slide-in-up'} ).then(function(modal){
-				$scope.sonideroModal = modal;
-				$scope.user = {};
-
-				$scope.hideModal = function(){
-					$scope.sonideroModal.hide();
-				};
-
-				$scope.sonideroCreateProfile = function(user){
-					var userFolder = user.stationName.split(' ').join('').toLowerCase();
-					var chatRoom = [{
-						username: 'luis',
-						message: 'This is the best app in the world'
-					},{
-						username: 'Johnny',
-						message: 'This is the best app in the world'
-					}];
-
+					user.stationName = stationName;
+					user.isActive = false;
 					user._id = $firebase.app.auth().currentUser.uid;
 					user.isPlaying = '';
-					user.avatar = $scope.user.coverImage;
+					user.avatar = '';
 					user.audioPlayer = '';
 					user.comments = [];
+					user.subStationName = '';
+					user.stationDescription = '';
+					user.stationUrl = '';
+					user.facebookUrl = '';
 
 					//create user profile by uid
 					$firebase.app.database().ref('users/' + user._id).set(user).then(function(){
 						console.log('user processing done.');
 					});
 
-					//create user chat databse by uid
+					// //create user chat databse by uid
 					$firebase.app.database().ref('chats/' + user._id + '/messages').set(chatRoom).then(function(){
 						console.log('chat processing done.');
 					});
-
-					$scope.sonideroModal.hide();
-
-					console.log(user);
-					console.log($scope.user.coverImage, 'image loaded');
-					
-
 				};
-			});
 
 			$scope.sonideroSignup = function(user){
 				console.log(user);
 				if(user){
 					$firebase.createUser(user).then(function(){
 						$firebase.app.auth().currentUser.sendEmailVerification({url: 'http://localhost:8100/#/home'});
-						$scope.sonideroModal.show();
+						$scope.sonideroCreateProfile(user.stationName);
+						$state.go('user');
 					}).catch(function(err){
+						console.log(new Error(err));
 						console.log(err.message);
 						$scope.error = err;
 						$scope.$apply();
 					});
 					console.log(user);
-					$scope.sonideroModal.show();
 				}
 			};
 
@@ -227,17 +219,23 @@ app.directive('userTemplate', function(){
 		restrict: 'E',
 		scope: {},
 		controller: ['$scope', '$firebase', function($scope, $firebase){
-			$scope.authUser = $firebase.currentUser;
+			$scope.authUser = '';
+
+			$firebase.app.auth().onAuthStateChanged(function(user) {
+				$scope.authUser = $firebase.app.auth().currentUser;
+				if($scope.authUser){
+					$firebase.app.database().ref('users/' + $scope.authUser.uid).once('value').then(function(data){
+						console.log(data.val(), 'value from database');
+						$scope.user = data.val();
+						$scope.isSonidero = data.val() ? true : '';
+						$scope.isFileUploaded = true;
+						console.log($scope.isSonidero, 'sonidero ?');
+						$scope.$apply();
+					});
+				}
+			});
 			$scope.isFileUploaded = false;
 			console.log($scope.currentUser, 'current user');
-			$firebase.app.database().ref('users/' + $scope.authUser.uid).once('value').then(function(data){
-				console.log(data.val(), 'value from database');
-				$scope.user = data.val();
-				$scope.isSonidero = data.val() ? true : '';
-				$scope.isFileUploaded = true;
-				console.log($scope.isSonidero, 'sonidero ?');
-				$scope.$apply();
-			});
 
 			$scope.sentVerification = false;
 			$scope.updateUser = function(name){
