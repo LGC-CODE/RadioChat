@@ -12,6 +12,13 @@
 	left: -1pc;
 }
 
+.spinner-assertive.spinner.spinner-lines {
+	display: flex;
+	position: absolute;
+	top: 12px;
+	right: 43px;
+}
+
 .fileUpload {
 	display: none;
 }

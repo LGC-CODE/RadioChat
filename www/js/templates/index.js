@@ -206,7 +206,7 @@ app.directive('homeTemplate', function(){
 	return {
 		restrict: 'E',
 		scope: {},
-		controller: ['$scope', '$ionicHistory', '$stations', function($scope, $ionicHistory, $stations){
+		controller: ['$scope', '$stations', function($scope, $stations){
 
 		    $scope.stations = $stations.hosts;
 
@@ -254,8 +254,6 @@ app.directive('audioPlayer', function(){
 
 				$scope.stop = function(){
 					audio.pause();
-					//audio = $stations.saveAudio(stationId, new Audio(station.stationUrl));
-					//audio.load();
 					$scope.isPlaying = $stations.audioStatus(stationId, false);
 					$stations.setNowPlaying(stationId);
 					$page.setTitle('Radio Chat');
